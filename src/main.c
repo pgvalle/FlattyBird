@@ -1,20 +1,15 @@
+#define STB_DS_IMPLEMENTATION
+#include "../ext/stb_ds.h"
+
 #include <GL/glut.h>
 #include "config.h"
 #include "utils.h"
-
-// palette
-//  sky: #71c6d0
-//  clouds: 
+#include "entities.h"
 
 void display() {
   glClear(GL_COLOR_BUFFER_BIT);
 
-  glPushMatrix();
-  glTranslatef(100, 100, 0);
-  glScalef(100, 100, 1);
-  glHexColor(0xffffff);
-  glOval(0.5f, 0);
-  glPopMatrix();
+  drawPipePairs();
 
   glFlush();
 }
@@ -29,6 +24,8 @@ void reshape(i32 w, i32 h) {
 }
 
 void timer(i32 _) {
+    updatePipePairs();
+
     glutPostRedisplay();
     glutTimerFunc(1000 / FPS, timer, 0);
 }
@@ -50,6 +47,7 @@ i32 main(i32 argc, char** args) {
   glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0, WIDTH, 0, HEIGHT, -1.0, 1.0);
+  initPipePairs();
 
   glutMainLoop();
 
