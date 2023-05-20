@@ -26,4 +26,13 @@ for src in `echo $SOURCES`; do
   fi
 done
 
+for obj in `find out/ -name *.o`; do
+  tmp=${obj%.o}
+  src=src/${tmp#"out/"}
+  if [ ! -f $src ]; then
+    rm $obj
+    echo "$obj deleted since $src doesn't exist."
+  fi
+done
+
 gcc $FLAGS `find out/ -name *.o` -o flattybird.out
