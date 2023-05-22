@@ -38,10 +38,25 @@ extern struct PipePair {
 */
 
 
-bool collideWithPipePairs(f32 x, f32 y, f32 w, f32 h)
+bool collideWithPipePair(f32 x, f32 y, f32 w, f32 h)
 {
   for (i32 i = 0; i < PIPEPAIR_AMOUNT; i++) {
+    // pipe pair bounds
+    const f32 rx = pipePairs[i].x; // x and w are the same
+    // top pipe
+    const f32 ty = pipePairs[i].passageY + PIPEPAIR_PASSAGE -\
+                   0.5f*pipePairs[i].crusher.passageOffset;
+    const f32 th = HEIGHT - ty;
+    // bottom pipe
+    const f32 by = 0;
+    const f32 bh = pipePairs[i].passageY + 0.5f*pipePairs[i].crusher.passageOffset;
 
+    // bound checking
+    if ((x < rx + PIPE_WIDTH && x + w > rx && y < ty + th && y + h > ty) || // top pipe 
+        (x < rx + PIPE_WIDTH && x + w > rx && y < by + bh && y + h > by))   // bottom pipe
+    {
+      return true;
+    }
   }
 
   return false;
@@ -207,17 +222,18 @@ void drawPipePairs() {
     }
 
     glHexColor(0x75be2f); // green
+    // top pipe
+    glPushMatrix(); {
+      const f32 pipeHeight = HEIGHT - pipePairs[i].passageY - PIPEPAIR_PASSAGE +\
+                             0.5f*pipePairs[i].crusher.passageOffset;
+      glTranslatef(pipePairs[i].x + 0.5f*PIPE_WIDTH, HEIGHT - 0.5f*pipeHeight, 0);
+      glScalef(PIPE_WIDTH, pipeHeight, PIPE_WIDTH);
+      glutSolidCube(1); }
+    glPopMatrix();
     // bottom pipe
     glPushMatrix(); {
       const f32 pipeHeight = pipePairs[i].passageY + 0.5f*pipePairs[i].crusher.passageOffset;
       glTranslatef(pipePairs[i].x + 0.5f*PIPE_WIDTH, 0.5f*pipeHeight, 0);
-      glScalef(PIPE_WIDTH, pipeHeight, PIPE_WIDTH);
-      glutSolidCube(1); }
-    glPopMatrix();
-    // top pipe
-    glPushMatrix(); {
-      const f32 pipeHeight = HEIGHT - pipePairs[i].passageY - PIPEPAIR_PASSAGE + 0.5f*pipePairs[i].crusher.passageOffset;
-      glTranslatef(pipePairs[i].x + 0.5f*PIPE_WIDTH, HEIGHT - 0.5f*pipeHeight, 0);
       glScalef(PIPE_WIDTH, pipeHeight, PIPE_WIDTH);
       glutSolidCube(1); }
     glPopMatrix();

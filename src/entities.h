@@ -54,7 +54,7 @@ extern struct PipePair {
   } crusher;
 } pipePairs[PIPEPAIR_AMOUNT];
 
-bool collideWithPipePairs(f32 x, f32 y, f32 w, f32 h);
+bool collideWithPipePair(f32 x, f32 y, f32 w, f32 h);
 bool collideWithPipePairCoin(f32 x, f32 y, f32 w, f32 h);
 
 void initPipePairs();

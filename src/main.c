@@ -47,8 +47,8 @@ void timer(i32 _) {
 void mouse(int button, int state, int x, int y) {
   f32 fx, fy;
   toGameCoords(&fx, &fy, x, y);
-  if (collideWithPipePairCoin(fx, fy, 1, 1)) {
-    // do some sht
+  if (collideWithPipePair(fx, fy, 1, 1)) {
+    printf("Helo ma fren\n");
   }
 }
 
