@@ -23,6 +23,8 @@ void drawFlatty();
 #define PIPEPAIR_PASSAGE 70
 #define PIPEPAIR_DISTANCE 64
 
+#define COIN_SIZE 8
+
 extern struct PipePair {
   f32 x;
   f32 passageY;
@@ -51,6 +53,9 @@ extern struct PipePair {
     i32 timer;
   } crusher;
 } pipePairs[PIPEPAIR_AMOUNT];
+
+bool collideWithPipePairs(f32 x, f32 y, f32 w, f32 h);
+bool collideWithPipePairCoin(f32 x, f32 y, f32 w, f32 h);
 
 void initPipePairs();
 void updatePipePairs();

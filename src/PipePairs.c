@@ -1,9 +1,11 @@
 #include "entities.h"
 #include "config.h"
 #include "utils.h"
+
 #include <GL/glut.h>
 #include <string.h>
 #include <math.h>
+#include <stdio.h>
 
 /*
 extern struct PipePair {
@@ -34,6 +36,41 @@ extern struct PipePair {
   } crusher;
 } pipePairs[PIPEPAIR_AMOUNT];
 */
+
+
+bool collideWithPipePairs(f32 x, f32 y, f32 w, f32 h)
+{
+  for (i32 i = 0; i < PIPEPAIR_AMOUNT; i++) {
+
+  }
+
+  return false;
+}
+
+bool collideWithPipePairCoin(f32 x, f32 y, f32 w, f32 h)
+{
+  for (i32 i = 0; i < PIPEPAIR_AMOUNT; i++) {
+    // not a relevant type of pipe pair. Skip
+    if (pipePairs[i].type != PIPEPAIR_WITH_COIN &&
+        pipePairs[i].type != PIPEPAIR_CRUSHER_WITH_COIN)
+    {
+      continue;
+    }
+
+    // coin position (left-bottom)
+    const f32 cx = pipePairs[i].x + 0.5f*(PIPE_WIDTH - COIN_SIZE);
+    const f32 cy = pipePairs[i].passageY + 0.5f*PIPEPAIR_PASSAGE;
+    
+    // bound checking
+    if (x < cx + COIN_SIZE && x + w > cx &&
+        y < cy + COIN_SIZE && y + h > cy)
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 static inline
 f32 genRandomPassageY() {
@@ -164,7 +201,7 @@ void drawPipePairs() {
         glTranslatef(pipePairs[i].x + 0.5f*PIPE_WIDTH,
             pipePairs[i].passageY + 0.5f*PIPEPAIR_PASSAGE, 0);
         glRotatef(pipePairs[i].coin.angle, 0, 1, 0);
-        glScalef(8, 8, 1);
+        glScalef(COIN_SIZE, COIN_SIZE, 1);
         glutSolidSphere(0.5f, 24, 24);
       glPopMatrix();
     }
@@ -179,8 +216,7 @@ void drawPipePairs() {
     glPopMatrix();
     // top pipe
     glPushMatrix(); {
-      const f32 pipeHeight = HEIGHT - pipePairs[i].passageY - PIPEPAIR_PASSAGE +
-        0.5f*pipePairs[i].crusher.passageOffset;
+      const f32 pipeHeight = HEIGHT - pipePairs[i].passageY - PIPEPAIR_PASSAGE + 0.5f*pipePairs[i].crusher.passageOffset;
       glTranslatef(pipePairs[i].x + 0.5f*PIPE_WIDTH, HEIGHT - 0.5f*pipeHeight, 0);
       glScalef(PIPE_WIDTH, pipeHeight, PIPE_WIDTH);
       glutSolidCube(1); }

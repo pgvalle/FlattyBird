@@ -4,6 +4,7 @@
 #include <GL/glut.h>
 
 #include <time.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "config.h"
@@ -28,12 +29,27 @@ void reshape(i32 w, i32 h) {
   display();
 }
 
+static inline
+void toGameCoords(f32* x, f32* y, f32 sx, f32 sy) {
+  *x = WIDTH * sx / glutGet(GLUT_WINDOW_WIDTH);
+  const f32 sh = glutGet(GLUT_WINDOW_HEIGHT);
+  *y = HEIGHT * (sh - sy) / sh;
+}
+
 void timer(i32 _) {
     updateFlatty();
     updatePipePairs();
 
     glutPostRedisplay();
     glutTimerFunc(1000 / FPS, timer, 0);
+}
+
+void mouse(int button, int state, int x, int y) {
+  f32 fx, fy;
+  toGameCoords(&fx, &fy, x, y);
+  if (collideWithPipePairCoin(fx, fy, 1, 1)) {
+    // do some sht
+  }
 }
 
 i32 main(i32 argc, char** args) {
@@ -48,6 +64,7 @@ i32 main(i32 argc, char** args) {
 
   glutDisplayFunc(display);
   glutTimerFunc(1000 / FPS, timer, 0);
+  glutMouseFunc(mouse);
 
   glClearColor(0x71/255.0f, 0xc6/255.0f, 0xd0/255.0f, 1);
   
