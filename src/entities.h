@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-/*extern struct Flatty {
+extern struct Flatty {
   enum {
     FLATTY_WAITING, // before the game actually starts
     FLATTY_ALIVE,   // flapping and reacting to input
@@ -11,30 +11,45 @@
     FLATTY_DEAD     // not being displayed
   } state;
 
-  f32 x, y; // x is constant
-  f32 a; // acceleration (y axis only)
+  f32 x, y, velY; // x is constant
 } flatty;
 
+void initFlatty();
 void updateFlatty();
-void drawFlatty(); */
+void drawFlatty();
 
-#define PIPE_WIDTH 32
 #define PIPEPAIR_AMOUNT 10
-#define PIPEPAIR_DISTANCE 48
-#define PIPEPAIR_PASSAGE_HEIGHT 64 
+#define PIPE_WIDTH  32
+#define PIPEPAIR_PASSAGE 70
+#define PIPEPAIR_DISTANCE 64
 
 extern struct PipePair {
   f32 x;
   f32 passageY;
 
-  bool crusher;
   enum {
-    PIPEPAIR_CRUSH_WAIT,
-    PIPEPAIR_CRUSHING,
-    PIPEPAIR_RESET_WAIT,
-    PIPEPAIR_RESETTING
-  } crusherState;
-  u32 crusherTimer;
+    PIPEPAIR_NORMAL = 0,
+    PIPEPAIR_WITH_COIN,
+    PIPEPAIR_CRUSHER,
+    PIPEPAIR_CRUSHER_WITH_COIN
+  } type;
+
+  struct Coin {
+    i32 value;
+    f32 angle;
+  } coin;
+
+  struct Crusher {
+    enum {
+      PIPEPAIR_CRUSHER_WAITING = 0, // waiting for activation
+      PIPEPAIR_CRUSHER_ACTIVATED,   // transition to crushing state
+
+      PIPEPAIR_CRUSHER_CRUSHING,    // object crushed, waiting to reset
+      PIPEPAIR_CRUSHER_RESETING,    // transition to original waiting state
+    } state;
+    f32 passageOffset;
+    i32 timer;
+  } crusher;
 } pipePairs[PIPEPAIR_AMOUNT];
 
 void initPipePairs();

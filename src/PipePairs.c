@@ -3,66 +3,188 @@
 #include "utils.h"
 #include <GL/glut.h>
 #include <string.h>
+#include <math.h>
 
-/*extern struct PipePair {
+/*
+extern struct PipePair {
   f32 x;
-  f32 passageY;
+  f32 passageY, passageHeight;
 
-  bool crusher;
   enum {
-    PIPEPAIR_CRUSH_WAIT,
-    PIPEPAIR_CRUSHING,
-    PIPEPAIR_RESET_WAIT,
-    PIPEPAIR_RESETTING
-  } crusherState;
-  u32 crusherTimer;
-}* pipePairs;*/
+    PIPEPAIR_NORMAL = 0,
+    PIPEPAIR_WITH_COIN,
+    PIPEPAIR_CRUSHER,
+    PIPEPAIR_CRUSHER_WITH_COIN
+  } type;
+
+  struct Coin {
+    i32 value;
+    f32 angle;
+  } coin;
+
+  struct Crusher {
+    enum {
+      PIPEPAIR_CRUSHER_WAITING = 0, // waiting for activation
+      PIPEPAIR_CRUSHER_ACTIVATED,   // transition to crushing state
+
+      PIPEPAIR_CRUSHER_CRUSHING,    // object crushed, waiting to reset
+      PIPEPAIR_CRUSHER_RESETING,    // transition to original waiting state
+    } state;
+    i32 timer;
+  } crusher;
+} pipePairs[PIPEPAIR_AMOUNT];
+*/
+
+static inline
+f32 genRandomPassageY() {
+  return 40 + 20*(rand() % 5);
+}
+
+static inline
+int genRandomType() {
+  return abs(rand() % 4);
+}
+
+static inline
+f32 genRandomCoinRotation() {
+  return abs(rand() % 360);
+}
+
+static inline
+i32 genRandomCrushTimer() {
+  return abs(rand() % 1000) + 1;
+}
 
 void initPipePairs() {
-  for (int i = 0; i < PIPEPAIR_AMOUNT; i++) {
-    // all pipes start out of screen
-    pipePairs[i].x = WIDTH + (PIPEPAIR_DISTANCE + PIPE_WIDTH)*(i + 1);
-    pipePairs[i].passageY = 100;
-    pipePairs[i].crusher = false;
+  for (i32 i = 0; i < PIPEPAIR_AMOUNT; i++) {
+    pipePairs[i] = (struct PipePair){
+      .x = (PIPEPAIR_DISTANCE + PIPE_WIDTH)*i + WIDTH,
+      .passageY = genRandomPassageY(),
+
+      .type = genRandomType(),
+
+      .coin = { .value = 0, .angle = genRandomCoinRotation() },
+
+      .crusher = {
+        .state = PIPEPAIR_CRUSHER_WAITING,
+        .passageOffset = 0,
+        .timer = genRandomCrushTimer()
+      }
+    };
   }
 }
 
+void updateCrusher(struct Crusher* crusher) {
+  crusher->timer += 16;
+  switch (crusher->state) {
+    case PIPEPAIR_CRUSHER_WAITING:
+      if (crusher->timer >= 1000) {
+        crusher->state = PIPEPAIR_CRUSHER_ACTIVATED;
+        crusher->timer = 0;
+      }
+      break;
+    case PIPEPAIR_CRUSHER_ACTIVATED:
+      crusher->passageOffset += 3;
+      if (crusher->passageOffset >= PIPEPAIR_PASSAGE) {
+        crusher->passageOffset = PIPEPAIR_PASSAGE;
+        crusher->state = PIPEPAIR_CRUSHER_CRUSHING;
+        crusher->timer = 0;
+      }
+      break;
+    case PIPEPAIR_CRUSHER_CRUSHING:
+      if (crusher->timer >= 500) {
+        crusher->state = PIPEPAIR_CRUSHER_RESETING;
+        crusher->timer = 0;
+      }
+      break;
+    case PIPEPAIR_CRUSHER_RESETING:
+      crusher->passageOffset -= 1.5f;
+      if (crusher->passageOffset <= 0) {
+        crusher->passageOffset = 0;
+        crusher->state = PIPEPAIR_CRUSHER_WAITING;
+        crusher->timer = 0;
+      }
+      break;
+  }
+
+}
+
 void updatePipePairs() {
-  for (int i = 0; i < PIPEPAIR_AMOUNT; i++) {
-    pipePairs[i].x -= 1; // move backwards
+  for (i32 i = 0; i < PIPEPAIR_AMOUNT; i++) {
+    pipePairs[i].x -= 0.5f; // update position
 
-    if (pipePairs[i].crusher) {
-
+    // update coin
+    if (pipePairs[i].type == PIPEPAIR_WITH_COIN ||
+        pipePairs[i].type == PIPEPAIR_CRUSHER_WITH_COIN)
+    {
+      pipePairs[i].coin.angle += 2;
+      if (pipePairs[i].coin.angle >= 360) {
+        pipePairs[i].coin.angle -= 360;
+      }
+    }
+    
+    if (pipePairs[i].type == PIPEPAIR_CRUSHER ||
+        pipePairs[i].type == PIPEPAIR_CRUSHER_WITH_COIN)
+    {
+      updateCrusher(&pipePairs[i].crusher);
     }
   }
 
   // first pipe went fully out of screen
   if (pipePairs[0].x + PIPE_WIDTH <= 0) {
-    struct PipePair newPipePair = {
-      .x = pipePairs[PIPEPAIR_AMOUNT - 1].x + PIPEPAIR_DISTANCE + PIPE_WIDTH,
-      .passageY = 100,
-      .crusher = false,
-      .crusherState = PIPEPAIR_CRUSH_WAIT,
-      .crusherTimer = 0
-    };
-
-    const size_t typeSize = sizeof(struct PipePair);
     // move all pipes overlapping first one (first pipe discarted)
-    memmove(&pipePairs[0], &pipePairs[1], (PIPEPAIR_AMOUNT - 1) * typeSize);
-    // "push" new pipe
-    memcpy(&pipePairs[PIPEPAIR_AMOUNT - 1], &newPipePair, typeSize);
+    memmove(pipePairs, pipePairs + 1, (PIPEPAIR_AMOUNT - 1) * sizeof(struct PipePair));
+    // "push" new pipepair
+    pipePairs[PIPEPAIR_AMOUNT - 1] = (struct PipePair){
+      .x = pipePairs[PIPEPAIR_AMOUNT - 1].x + PIPEPAIR_DISTANCE + PIPE_WIDTH,
+      .passageY = genRandomPassageY(),
+
+      .type = genRandomType(),
+
+      .coin = { .value = 0, .angle = genRandomCoinRotation() },
+
+      .crusher = {
+        .state = PIPEPAIR_CRUSHER_WAITING,
+        .passageOffset = 0,
+        .timer = genRandomCrushTimer()
+      }
+    };
   }
 }
 
 void drawPipePairs() {
-  glHexColor(0x75be2f);
-  for (int i = 0; i < PIPEPAIR_AMOUNT; i++) {
+  for (i32 i = 0; i < PIPEPAIR_AMOUNT; i++) {
+    // render coin in the middle and behind pipes
+    if (pipePairs[i].type == PIPEPAIR_WITH_COIN ||
+        pipePairs[i].type == PIPEPAIR_CRUSHER_WITH_COIN)
+    {
+      glHexColor(0xffffff);
+      // draw coin
+      glPushMatrix();
+        glTranslatef(pipePairs[i].x + 0.5f*PIPE_WIDTH,
+            pipePairs[i].passageY + 0.5f*PIPEPAIR_PASSAGE, 0);
+        glRotatef(pipePairs[i].coin.angle, 0, 1, 0);
+        glScalef(8, 8, 1);
+        glutSolidSphere(0.5f, 24, 24);
+      glPopMatrix();
+    }
+
+    glHexColor(0x75be2f); // green
     // bottom pipe
-    glRectf(pipePairs[i].x, 0,
-      pipePairs[i].x + PIPE_WIDTH, pipePairs[i].passageY);
+    glPushMatrix(); {
+      const f32 pipeHeight = pipePairs[i].passageY + 0.5f*pipePairs[i].crusher.passageOffset;
+      glTranslatef(pipePairs[i].x + 0.5f*PIPE_WIDTH, 0.5f*pipeHeight, 0);
+      glScalef(PIPE_WIDTH, pipeHeight, PIPE_WIDTH);
+      glutSolidCube(1); }
+    glPopMatrix();
     // top pipe
-    glRectf(pipePairs[i].x, pipePairs[i].passageY + PIPEPAIR_PASSAGE_HEIGHT,
-        pipePairs[i].x + PIPE_WIDTH, HEIGHT);
+    glPushMatrix(); {
+      const f32 pipeHeight = HEIGHT - pipePairs[i].passageY - PIPEPAIR_PASSAGE +
+        0.5f*pipePairs[i].crusher.passageOffset;
+      glTranslatef(pipePairs[i].x + 0.5f*PIPE_WIDTH, HEIGHT - 0.5f*pipeHeight, 0);
+      glScalef(PIPE_WIDTH, pipeHeight, PIPE_WIDTH);
+      glutSolidCube(1); }
+    glPopMatrix();
   }
 }
 
