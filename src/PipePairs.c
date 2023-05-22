@@ -56,7 +56,7 @@ bool collideWithPipePairCoin(f32 x, f32 y, f32 w, f32 h)
 
 static inline
 f32 genRandomPassageY() {
-  return 40 + 20*(rand() % 5);
+  return 51 + 20*(rand() % 5);
 }
 
 static inline
@@ -190,19 +190,19 @@ void drawPipePairs() {
 
     glHexColor(0x75be2f); // green
     // top pipe
-    glPushMatrix(); {
-      const f32 pipeHeight = HEIGHT - pipePairs[i].passageY - PIPEPAIR_PASSAGE +\
-                             0.5f*pipePairs[i].crusher.passageOffset;
-      glTranslatef(pipePairs[i].x + 0.5f*PIPE_WIDTH, HEIGHT - 0.5f*pipeHeight, 0);
-      glScalef(PIPE_WIDTH, pipeHeight, PIPE_WIDTH);
-      glutSolidCube(1); }
+    const f32 tph = HEIGHT - pipePairs[i].passageY - PIPEPAIR_PASSAGE +\
+                    0.5f*pipePairs[i].crusher.passageOffset;
+    glPushMatrix();
+      glTranslatef(pipePairs[i].x + 0.5f*PIPE_WIDTH, HEIGHT - 0.5f*tph, 0);
+      glScalef(PIPE_WIDTH, tph, PIPE_WIDTH);
+      glutSolidCube(1);
     glPopMatrix();
     // bottom pipe
-    glPushMatrix(); {
-      const f32 pipeHeight = pipePairs[i].passageY + 0.5f*pipePairs[i].crusher.passageOffset;
-      glTranslatef(pipePairs[i].x + 0.5f*PIPE_WIDTH, 0.5f*pipeHeight, 0);
-      glScalef(PIPE_WIDTH, pipeHeight, PIPE_WIDTH);
-      glutSolidCube(1); }
+    const f32 bph = pipePairs[i].passageY + 0.5f*pipePairs[i].crusher.passageOffset;
+    glPushMatrix();
+      glTranslatef(pipePairs[i].x + 0.5f*PIPE_WIDTH, 0.5f*bph, 0);
+      glScalef(PIPE_WIDTH, bph, PIPE_WIDTH);
+      glutSolidCube(1);
     glPopMatrix();
   }
 }

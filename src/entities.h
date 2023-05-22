@@ -11,7 +11,7 @@ extern struct Flatty {
     FLATTY_DEAD     // not being displayed
   } state;
 
-  f32 x, y, velY; // x is constant
+  f32 x, y, velY; // velX is constant
 } flatty;
 
 void initFlatty();

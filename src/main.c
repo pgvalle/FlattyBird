@@ -13,9 +13,25 @@
 
 void display() {
   glClear(GL_COLOR_BUFFER_BIT);
-
+  
   drawFlatty();
   drawPipePairs();
+
+  const f32 floorHeight = 5;
+  // Floor
+  glHexColor(0x0608426);
+  glPushMatrix();
+    glTranslatef(0.5f*WIDTH, 20 + 0.5f*floorHeight, 0);
+    glScalef(WIDTH, floorHeight, 20);
+    glutSolidCube(1);
+  glPopMatrix();
+  // below floor
+  glHexColor(0xfcc589);
+  glPushMatrix();
+    glTranslatef(0.5f*WIDTH, 10, 0);
+    glScalef(WIDTH, 20, 20);
+    glutSolidCube(1);
+  glPopMatrix();
 
   glFlush();
 }
@@ -30,7 +46,7 @@ void reshape(i32 w, i32 h) {
 }
 
 static inline
-void toGameCoords(f32* x, f32* y, f32 sx, f32 sy) {
+void toWorldCoords(f32* x, f32* y, f32 sx, f32 sy) {
   *x = WIDTH * sx / glutGet(GLUT_WINDOW_WIDTH);
   const f32 sh = glutGet(GLUT_WINDOW_HEIGHT);
   *y = HEIGHT * (sh - sy) / sh;
@@ -46,7 +62,7 @@ void timer(i32 _) {
 
 void mouse(int button, int state, int x, int y) {
   f32 fx, fy;
-  toGameCoords(&fx, &fy, x, y);
+  toWorldCoords(&fx, &fy, x, y);
   if (collideWithPipePair(fx, fy, 1, 1)) {
     printf("Helo ma fren\n");
   }
