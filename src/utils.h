@@ -6,7 +6,7 @@
 // argb format
 void glHexColor(u32 color);
 
-void glOval(f32 radius, f32 z);
+void glOval(f32 radius);
 
 #endif // UTILS_H
 

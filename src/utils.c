@@ -14,7 +14,7 @@ void glHexColor(u32 color) {
   glColor3f(r / 255.0f, g / 255.0f, b / 255.0f);
 }
 
-void glOval(f32 radius, f32 z) {
+void glOval(f32 radius) {
   const i32 numIterations = 36;
   const f32 angleStep = 2*PI / numIterations; // in radians
   const f32 cosStep = cos(angleStep);
@@ -24,7 +24,7 @@ void glOval(f32 radius, f32 z) {
     f32 cosi = 1;
     f32 sini = 0;
     for (i32 i = 0; i < numIterations; i++) {
-      glVertex3f(radius*cosi, radius*sini, z);
+      glVertex3f(radius*cosi, radius*sini, 0);
       
       const f32 cost = cosi;
       const f32 sint = sini;
