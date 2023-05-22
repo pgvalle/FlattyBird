@@ -7,37 +7,6 @@
 #include <math.h>
 #include <stdio.h>
 
-/*
-extern struct PipePair {
-  f32 x;
-  f32 passageY, passageHeight;
-
-  enum {
-    PIPEPAIR_NORMAL = 0,
-    PIPEPAIR_WITH_COIN,
-    PIPEPAIR_CRUSHER,
-    PIPEPAIR_CRUSHER_WITH_COIN
-  } type;
-
-  struct Coin {
-    i32 value;
-    f32 angle;
-  } coin;
-
-  struct Crusher {
-    enum {
-      PIPEPAIR_CRUSHER_WAITING = 0, // waiting for activation
-      PIPEPAIR_CRUSHER_ACTIVATED,   // transition to crushing state
-
-      PIPEPAIR_CRUSHER_CRUSHING,    // object crushed, waiting to reset
-      PIPEPAIR_CRUSHER_RESETING,    // transition to original waiting state
-    } state;
-    i32 timer;
-  } crusher;
-} pipePairs[PIPEPAIR_AMOUNT];
-*/
-
-
 bool collideWithPipePair(f32 x, f32 y, f32 w, f32 h)
 {
   for (i32 i = 0; i < PIPEPAIR_AMOUNT; i++) {
@@ -52,8 +21,8 @@ bool collideWithPipePair(f32 x, f32 y, f32 w, f32 h)
     const f32 bh = pipePairs[i].passageY + 0.5f*pipePairs[i].crusher.passageOffset;
 
     // bound checking
-    if ((x < rx + PIPE_WIDTH && x + w > rx && y < ty + th && y + h > ty) || // top pipe 
-        (x < rx + PIPE_WIDTH && x + w > rx && y < by + bh && y + h > by))   // bottom pipe
+    if (x < rx + PIPE_WIDTH && x + w > rx && y < ty + th && y + h > ty || // top pipe 
+        x < rx + PIPE_WIDTH && x + w > rx && y < by + bh && y + h > by)   // bottom pipe
     {
       return true;
     }
@@ -77,9 +46,7 @@ bool collideWithPipePairCoin(f32 x, f32 y, f32 w, f32 h)
     const f32 cy = pipePairs[i].passageY + 0.5f*PIPEPAIR_PASSAGE;
     
     // bound checking
-    if (x < cx + COIN_SIZE && x + w > cx &&
-        y < cy + COIN_SIZE && y + h > cy)
-    {
+    if (x < cx + COIN_SIZE && x + w > cx && y < cy + COIN_SIZE && y + h > cy) {
       return true;
     }
   }
