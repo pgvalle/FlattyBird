@@ -5,7 +5,6 @@
 #include <GL/glut.h>
 #include <string.h>
 #include <math.h>
-#include <stdio.h>
 
 bool collideWithPipePair(f32 x, f32 y, f32 w, f32 h)
 {
@@ -41,11 +40,12 @@ bool collideWithPipePairCoin(f32 x, f32 y, f32 w, f32 h)
       continue;
     }
 
+    const f32 floatValue = 4*sin(0.01745329251f*pipePairs[i].coin.angle);
     // coin position (left-bottom)
     const f32 cx = pipePairs[i].x + 0.5f*(PIPE_WIDTH - COIN_SIZE);
-    const f32 cy = pipePairs[i].passageY + 0.5f*PIPEPAIR_PASSAGE;
+    const f32 cy = pipePairs[i].passageY + 0.5f*PIPEPAIR_PASSAGE + floatValue;
     
-    // bound checking
+    // bound checkin
     if (x < cx + COIN_SIZE && x + w > cx && y < cy + COIN_SIZE && y + h > cy) {
       return true;
     }
@@ -97,7 +97,7 @@ void updateCrusher(struct Crusher* crusher) {
   crusher->timer += 16;
   switch (crusher->state) {
     case PIPEPAIR_CRUSHER_WAITING:
-      if (crusher->timer >= 1000) {
+      if (crusher->timer >= 2000) {
         crusher->state = PIPEPAIR_CRUSHER_ACTIVATED;
         crusher->timer = 0;
       }
@@ -130,16 +130,11 @@ void updateCrusher(struct Crusher* crusher) {
 
 void updatePipePairs() {
   for (i32 i = 0; i < PIPEPAIR_AMOUNT; i++) {
-    pipePairs[i].x -= 0.5f; // update position
-
     // update coin
     if (pipePairs[i].type == PIPEPAIR_WITH_COIN ||
         pipePairs[i].type == PIPEPAIR_CRUSHER_WITH_COIN)
     {
       pipePairs[i].coin.angle += 2;
-      if (pipePairs[i].coin.angle >= 360) {
-        pipePairs[i].coin.angle -= 360;
-      }
     }
     
     if (pipePairs[i].type == PIPEPAIR_CRUSHER ||
@@ -180,8 +175,9 @@ void drawPipePairs() {
       glHexColor(0xffffff);
       // draw coin
       glPushMatrix();
+        const f32 floatValue = 4*sin(0.01745329251f*pipePairs[i].coin.angle);
         glTranslatef(pipePairs[i].x + 0.5f*PIPE_WIDTH,
-            pipePairs[i].passageY + 0.5f*PIPEPAIR_PASSAGE, 0);
+            pipePairs[i].passageY + 0.5f*PIPEPAIR_PASSAGE + floatValue, 0);
         glRotatef(pipePairs[i].coin.angle, 0, 1, 0);
         glScalef(COIN_SIZE, COIN_SIZE, 1);
         glutSolidSphere(0.5f, 24, 24);

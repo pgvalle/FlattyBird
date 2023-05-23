@@ -18,9 +18,9 @@ void initFlatty();
 void updateFlatty();
 void drawFlatty();
 
-#define PIPEPAIR_AMOUNT 10
 #define PIPE_WIDTH  32
-#define PIPEPAIR_PASSAGE 70
+#define PIPEPAIR_AMOUNT 6
+#define PIPEPAIR_PASSAGE 60
 #define PIPEPAIR_DISTANCE 64
 
 #define COIN_SIZE 8

@@ -24,12 +24,27 @@ void initFlatty() {
 
 void updateFlatty() {
   switch (flatty.state) {
+    case FLATTY_WAITING:
+      break;
     case FLATTY_ALIVE:
-      flatty.velY -= 0.2f;
-      flatty.y += flatty.velY;
-      if (flatty.y <= 0) {
-        flatty.velY = 0;
-        flatty.y = 200;
+      // limit velocity to a maximum
+      if (flatty.velY > -4) {
+        flatty.velY -= 0.3f;
+      }
+      // only update if flatty still on screen
+      if (flatty.y > 0) {
+        flatty.y += flatty.velY;
+      }
+      break;
+    case FLATTY_DYING:
+      if (flatty.velY > -4) {
+        flatty.velY -= 0.3f;
+      }
+
+      if (flatty.y > 0) {
+        flatty.y += flatty.velY;
+      } else { // out of screen
+        flatty.state = FLATTY_DEAD;
       }
       break;
     case FLATTY_DEAD:
@@ -41,6 +56,7 @@ void drawFlatty() {
   glPushMatrix();
     // body at (x, y)
     glTranslatef(flatty.x + 8, flatty.y + 5, 0);
+    glRotatef(15*flatty.velY, 0, 0, 1); // part of flapping effect
     glScalef(16, 10, 1);
     glHexColor(0xd4bf26);
     glOval(0.5f);

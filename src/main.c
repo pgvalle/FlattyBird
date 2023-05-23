@@ -14,15 +14,14 @@
 void display() {
   glClear(GL_COLOR_BUFFER_BIT);
   
-  drawFlatty();
   drawPipePairs();
+  drawFlatty();
 
-  const f32 floorHeight = 5;
-  // Floor
+  // floor
   glHexColor(0x0608426);
   glPushMatrix();
-    glTranslatef(0.5f*WIDTH, 20 + 0.5f*floorHeight, 0);
-    glScalef(WIDTH, floorHeight, 20);
+    glTranslatef(0.5f*WIDTH, 20 + 2.5f, 0);
+    glScalef(WIDTH, 5, 20);
     glutSolidCube(1);
   glPopMatrix();
   // below floor
@@ -52,12 +51,44 @@ void toWorldCoords(f32* x, f32* y, f32 sx, f32 sy) {
   *y = HEIGHT * (sh - sy) / sh;
 }
 
+bool goingLeft = false;
+
 void timer(i32 _) {
+    if (flatty.state == FLATTY_ALIVE && collideWithPipePair(flatty.x, flatty.y, 16, 10)) {
+      flatty.state = FLATTY_DYING;
+      flatty.velY = 4;
+    }
+
+    if (goingLeft) {
+      for (int i = 0; i < PIPEPAIR_AMOUNT; i++) {
+        pipePairs[i].x -= 0.5f;
+      }
+    }
+
     updateFlatty();
     updatePipePairs();
 
     glutPostRedisplay();
     glutTimerFunc(1000 / FPS, timer, 0);
+}
+
+void keyboard(unsigned char key, int x, int y) {
+  if (key == ' ' && flatty.state < 2) {
+    flatty.velY = 4;
+  }
+
+  if (key == 'e') {
+    goingLeft = true;
+  }
+
+  display();
+}
+
+void keyboardUp(unsigned char key, int x, int y) {
+  if (key == 'e') {
+    goingLeft = false;
+  }
+  display();
 }
 
 void mouse(int button, int state, int x, int y) {
@@ -72,6 +103,7 @@ i32 main(i32 argc, char** args) {
   srand(time(NULL));
 
   glutInit(&argc, args);
+  glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
   glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
   glutInitWindowPosition(80, 80);
   glutInitWindowSize(SCALE*WIDTH, SCALE*HEIGHT);
@@ -81,6 +113,8 @@ i32 main(i32 argc, char** args) {
   glutDisplayFunc(display);
   glutTimerFunc(1000 / FPS, timer, 0);
   glutMouseFunc(mouse);
+  glutKeyboardFunc(keyboard);
+  glutKeyboardUpFunc(keyboardUp);
 
   glClearColor(0x71/255.0f, 0xc6/255.0f, 0xd0/255.0f, 1);
   
