@@ -16,16 +16,14 @@ extern struct Flatty {
 */
 
 void initFlatty() {
-  flatty.state = FLATTY_ALIVE;
+  flatty.state = FLATTY_WAITING;
   flatty.x = 64;
-  flatty.y = 200;
+  flatty.y = 122.5;
   flatty.velY = 0;
 }
 
 void updateFlatty() {
   switch (flatty.state) {
-    case FLATTY_WAITING:
-      break;
     case FLATTY_ALIVE:
       // limit velocity to a maximum
       if (flatty.velY > -4) {
@@ -34,6 +32,8 @@ void updateFlatty() {
       // only update if flatty still on screen
       if (flatty.y > 0) {
         flatty.y += flatty.velY;
+      } else { // out of screen: dead
+        flatty.state = FLATTY_DEAD;
       }
       break;
     case FLATTY_DYING:
@@ -47,21 +47,30 @@ void updateFlatty() {
         flatty.state = FLATTY_DEAD;
       }
       break;
-    case FLATTY_DEAD:
-      break;
   }
 }
 
 void drawFlatty() {
   glPushMatrix();
-    // body at (x, y)
-    glTranslatef(flatty.x + 8, flatty.y + 5, 0);
-    glRotatef(15*flatty.velY, 0, 0, 1); // part of flapping effect
-    glScalef(16, 10, 1);
+    // body
     glHexColor(0xd4bf26);
-    glOval(0.5f);
+    glTranslatef(flatty.x + 8, flatty.y + 5, 0);
+    glRotatef(15*flatty.velY, 0, 0, 1); // body flapping effect
+    glPushMatrix();
+      glScalef(16, 10, 1);
+      glOval(0.5f);
+    glPopMatrix();
 
-    // eye
+    // handle
+    glHexColor(0xf3f4e3);
+    glRotatef(-90 + 15*flatty.velY, 1, 0, 0); // wing flapping effect
+    glTranslatef(-2, -2, 0);
+    glScalef(8, 4, 1);
+    glBegin(GL_POLYGON);
+      glVertex2f(-0.5f, -0.5f);
+      glVertex2f(0.5f, 0.5f);
+      glVertex2f(-0.5f, 0.5f);
+    glEnd();
   glPopMatrix();
 }
 

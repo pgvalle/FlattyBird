@@ -40,6 +40,11 @@ bool collideWithPipePairCoin(f32 x, f32 y, f32 w, f32 h)
       continue;
     }
 
+    // also irrelevant. Skip
+    if (pipePairs[i].coin.collected) {
+      continue;
+    }
+
     const f32 floatValue = 4*sin(0.01745329251f*pipePairs[i].coin.angle);
     // coin position (left-bottom)
     const f32 cx = pipePairs[i].x + 0.5f*(PIPE_WIDTH - COIN_SIZE);
@@ -47,6 +52,7 @@ bool collideWithPipePairCoin(f32 x, f32 y, f32 w, f32 h)
     
     // bound checkin
     if (x < cx + COIN_SIZE && x + w > cx && y < cy + COIN_SIZE && y + h > cy) {
+      pipePairs[i].coin.collected = true;
       return true;
     }
   }
@@ -82,7 +88,7 @@ void initPipePairs() {
 
       .type = genRandomType(),
 
-      .coin = { .value = 0, .angle = genRandomCoinRotation() },
+      .coin = { .collected = false, .value = 0, .angle = genRandomCoinRotation() },
 
       .crusher = {
         .state = PIPEPAIR_CRUSHER_WAITING,
@@ -155,7 +161,7 @@ void updatePipePairs() {
 
       .type = genRandomType(),
 
-      .coin = { .value = 0, .angle = genRandomCoinRotation() },
+      .coin = { .collected = false, .value = 0, .angle = genRandomCoinRotation() },
 
       .crusher = {
         .state = PIPEPAIR_CRUSHER_WAITING,
@@ -169,8 +175,8 @@ void updatePipePairs() {
 void drawPipePairs() {
   for (i32 i = 0; i < PIPEPAIR_AMOUNT; i++) {
     // render coin in the middle and behind pipes
-    if (pipePairs[i].type == PIPEPAIR_WITH_COIN ||
-        pipePairs[i].type == PIPEPAIR_CRUSHER_WITH_COIN)
+    if ((pipePairs[i].type == PIPEPAIR_WITH_COIN ||
+        pipePairs[i].type == PIPEPAIR_CRUSHER_WITH_COIN) && !pipePairs[i].coin.collected)
     {
       glHexColor(0xffffff);
       // draw coin

@@ -37,6 +37,7 @@ extern struct PipePair {
   } type;
 
   struct Coin {
+    bool collected;
     i32 value;
     f32 angle;
   } coin;
