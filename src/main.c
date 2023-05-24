@@ -1,6 +1,3 @@
-#define STB_DS_IMPLEMENTATION
-#include "../ext/stb_ds.h"
-
 #include <GL/freeglut.h>
 
 #include <time.h>
