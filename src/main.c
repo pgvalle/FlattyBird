@@ -266,13 +266,6 @@ void reshape(i32 w, i32 h) {
   display();
 }
 
-static inline
-void toWorldCoords(f32* x, f32* y, f32 sx, f32 sy) {
-  *x = WIDTH * sx / glutGet(GLUT_WINDOW_WIDTH);
-  const f32 sh = glutGet(GLUT_WINDOW_HEIGHT);
-  *y = HEIGHT * (sh - sy) / sh;
-}
-
 /////////////////
 // ENTRY POINT //
 /////////////////
@@ -304,7 +297,7 @@ i32 main(i32 argc, char** args) {
   initPipePairs();
   initFlatty();
   
-  screen = SCREEN_PAUSE;
+  screen = SCREEN_PLAY;
   playScreen.state = PLAYSCREEN_PLAYING;
   playScreen.goingForward = false;
 
